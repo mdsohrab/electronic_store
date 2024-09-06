@@ -2,8 +2,10 @@ package Electronic.Store.Electronic.Store.Controller;
 
 
 import Electronic.Store.Electronic.Store.Dtos.ApiResponseMessage;
+import Electronic.Store.Electronic.Store.Dtos.PageableResponse;
 import Electronic.Store.Electronic.Store.Dtos.UserDto;
 import Electronic.Store.Electronic.Store.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,7 @@ public class UserController {
 
     //Create
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto) {
         UserDto userDto1 = userService.createUser(userDto);
         return new ResponseEntity<>(userDto1, HttpStatus.CREATED);
     }
@@ -48,8 +50,13 @@ public class UserController {
 
     // getall
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUser(){
-        return new ResponseEntity<>(userService.getAllUser(),HttpStatus.OK);
+    public ResponseEntity<PageableResponse> getAllUser(
+            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) int pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = "name", required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String SortDir) {
+
+        return new ResponseEntity<>(userService.getAllUser(pageNumber, pageSize, sortBy, SortDir), HttpStatus.OK);
     }
 
     //get single

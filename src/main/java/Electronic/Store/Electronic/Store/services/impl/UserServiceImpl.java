@@ -1,11 +1,18 @@
 package Electronic.Store.Electronic.Store.services.impl;
 
+import Electronic.Store.Electronic.Store.Dtos.PageableResponse;
 import Electronic.Store.Electronic.Store.Dtos.UserDto;
 import Electronic.Store.Electronic.Store.Entities.UserEntity;
+import Electronic.Store.Electronic.Store.Exceptions.ResourceNotFoundExceptions;
 import Electronic.Store.Electronic.Store.Repositories.UserRepository;
+import Electronic.Store.Electronic.Store.helper.Helper;
 import Electronic.Store.Electronic.Store.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,7 +45,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUSer(UserDto userDto, String userId) {
 
-        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("user not found this given id"));
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundExceptions("user not found this given id"));
 
         userEntity.setName(userDto.getName());
         //
@@ -57,22 +64,31 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(String userId) {
 
-        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User id not found !!"));
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundExceptions("User id not found !!"));
 
         userRepository.delete(userEntity);
 
     }
 
     @Override
-    public List<UserDto> getAllUser() {
-        List<UserEntity> userEntities = userRepository.findAll();
-        List<UserDto> dtoList = userEntities.stream().map(user -> entityToDto(user)).collect(Collectors.toList());
-        return dtoList;
+    public PageableResponse<UserDto> getAllUser(int pageNumber, int pageSize, String sortBy, String sortDir) {
+
+
+        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+        //pageNumber default starts from 0
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
+
+        Page<UserEntity> page = userRepository.findAll(pageable);
+
+        PageableResponse<UserDto> userDtoPageableResponse = Helper.getPageableResponse(page, UserDto.class);
+
+        return userDtoPageableResponse;
+
     }
 
     @Override
     public UserDto getUserById(String userId) {
-        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User id not found"));
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundExceptions("User id not found"));
         UserDto userDto = entityToDto(userEntity);
         return userDto;
 
@@ -80,7 +96,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserByEmail(String email) {
-        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("email not found"));
+        UserEntity userEntity = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundExceptions("email not found"));
         UserDto userDto = entityToDto(userEntity);
         return userDto;
     }
@@ -126,6 +142,6 @@ public class UserServiceImpl implements UserService {
 
 
         // By model mapper
-        return  modelMapper.map(userDto, UserEntity.class);
+        return modelMapper.map(userDto, UserEntity.class);
     }
 }
