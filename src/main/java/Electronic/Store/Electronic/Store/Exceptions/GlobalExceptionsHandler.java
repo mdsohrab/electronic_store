@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestControllerAdvice
 public class GlobalExceptionsHandler {
@@ -45,6 +44,15 @@ public class GlobalExceptionsHandler {
             response.put(field, message);
         });
 
+        return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    //handle bad api request
+    @ExceptionHandler(BadApiRequest.class)
+    public ResponseEntity<ApiResponseMessage> handleBadApiRequest(BadApiRequest ex) {
+        logger.info("Bad api request !!");
+        ApiResponseMessage response = ApiResponseMessage.builder().message(ex.getMessage()).status(HttpStatus.NOT_FOUND).success(true).build();
         return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
     }
 

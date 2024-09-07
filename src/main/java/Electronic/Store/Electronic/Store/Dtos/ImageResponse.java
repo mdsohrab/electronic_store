@@ -1,20 +1,20 @@
 package Electronic.Store.Electronic.Store.Dtos;
 
-
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ApiResponseMessage {
+public class ImageResponse {
+
+    private String imageName;
 
     private String message;
 
     private boolean success;
 
     private HttpStatus status;
-
 }
