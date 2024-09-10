@@ -8,13 +8,21 @@ import Electronic.Store.Electronic.Store.Repositories.UserRepository;
 import Electronic.Store.Electronic.Store.helper.Helper;
 import Electronic.Store.Electronic.Store.services.UserService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,6 +35,11 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Value("${user.profile.image.path}")
+    private String imagePath;
+
+    private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -48,7 +61,6 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundExceptions("user not found this given id"));
 
         userEntity.setName(userDto.getName());
-        //
         userEntity.setEmail(userDto.getEmail());
         userEntity.setAbout(userDto.getAbout());
         userEntity.setGender(userDto.getGender());
@@ -62,10 +74,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String userId) {
+    public void deleteUser(String userId) throws IOException {
 
-        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundExceptions("User id not found !!"));
+        UserEntity userEntity = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundExceptions("User id not found !!"));
 
+        //image user profile image
+        String fullPath = imagePath + userEntity.getImageName();
+
+        try {
+
+            Path path = Paths.get(fullPath);
+            Files.delete(path);
+        } catch (NoSuchFileException ex) {
+            logger.info("User image not found in folder", ex);
+            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //delete user profile
         userRepository.delete(userEntity);
 
     }

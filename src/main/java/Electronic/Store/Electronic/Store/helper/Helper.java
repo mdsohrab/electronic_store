@@ -18,7 +18,7 @@ public class Helper {
 
         PageableResponse<V> response = new PageableResponse<>();
         response.setContent(dtoList);
-        response.setPageNumber(page.getNumber() + 1);
+        response.setPageNumber(page.getNumber());
         response.setPageSize(page.getSize());
         response.setTotalNumber(page.getTotalElements());
         response.setTotalPages(page.getTotalPages());

@@ -20,7 +20,7 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -58,12 +58,13 @@ public class UserController {
     }
 
     //delete
-    @DeleteMapping("/userId")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<ApiResponseMessage> deleteUser(
             @PathVariable("userId") String userId
-    ) {
+    ) throws IOException {
         userService.deleteUser(userId);
-        ApiResponseMessage message = ApiResponseMessage.builder().message("User is deleted successfully")
+        ApiResponseMessage message = ApiResponseMessage.builder()
+                .message("User is deleted successfully")
                 .success(true).status(HttpStatus.OK).build();
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
