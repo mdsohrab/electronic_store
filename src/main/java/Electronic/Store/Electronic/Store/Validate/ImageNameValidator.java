@@ -13,7 +13,6 @@ public class ImageNameValidator implements ConstraintValidator<ImageNameValid, S
     @Override
     public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
 
-
         logger.info("Message from isValid : {}", value);
 
         //logic

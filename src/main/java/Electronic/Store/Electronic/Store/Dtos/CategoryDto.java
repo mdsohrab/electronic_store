@@ -1,6 +1,6 @@
 package Electronic.Store.Electronic.Store.Dtos;
 
-import jakarta.validation.constraints.Min;
+import Electronic.Store.Electronic.Store.Validate.ImageNameValid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -21,6 +21,6 @@ public class CategoryDto {
     @NotBlank(message = "description required !!")
     private String description;
 
-    @NotBlank(message = "coverImage required !!")
+    @ImageNameValid
     private String coverImage;
 }

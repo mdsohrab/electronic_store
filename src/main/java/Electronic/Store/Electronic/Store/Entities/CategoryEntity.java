@@ -25,6 +25,7 @@ public class CategoryEntity {
     @Column(name = "category_desc", length = 500)
     private String description;
 
+    @Column(name = "cover_image_name")
     private String coverImage;
     //other attributes if you have...
 
