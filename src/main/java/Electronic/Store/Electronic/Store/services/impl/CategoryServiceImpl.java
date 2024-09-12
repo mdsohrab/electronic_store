@@ -8,13 +8,21 @@ import Electronic.Store.Electronic.Store.Repositories.CategoryRepository;
 import Electronic.Store.Electronic.Store.helper.Helper;
 import Electronic.Store.Electronic.Store.services.CategoryService;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
@@ -25,6 +33,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Value("${category.profile.image.path}")
+    private String imagespath;
+
+    private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
 
     @Override
     public CategoryDto create(CategoryDto categoryDto) {
@@ -42,6 +56,17 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto update(CategoryDto categoryDto, String categoryId) {
 
         CategoryEntity categoryEntity = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundExceptions("Category not found !!"));
+
+        String fullPath = imagespath + categoryEntity.getCoverImage();
+        try {
+            Path path = Paths.get(fullPath);
+            Files.delete(path);
+        } catch (NoSuchFileException ex) {
+            logger.info("Cover image not found in folder", ex);
+            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         categoryEntity.setTitle(categoryDto.getTitle());
         categoryEntity.setDescription(categoryDto.getDescription());
