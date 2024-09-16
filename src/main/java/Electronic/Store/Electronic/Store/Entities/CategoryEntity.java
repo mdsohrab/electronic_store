@@ -1,10 +1,10 @@
 package Electronic.Store.Electronic.Store.Entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,7 +16,7 @@ import lombok.*;
 public class CategoryEntity {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "category_id")
     private String categoryId;
 
     @Column(name = "category_title", length = 60, nullable = false)
@@ -27,6 +27,9 @@ public class CategoryEntity {
 
     @Column(name = "cover_image_name")
     private String coverImage;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProductEntity> productEntities = new ArrayList<>();
     //other attributes if you have...
 
 

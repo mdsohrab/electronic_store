@@ -57,16 +57,6 @@ public class CategoryServiceImpl implements CategoryService {
 
         CategoryEntity categoryEntity = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundExceptions("Category not found !!"));
 
-        String fullPath = imagespath + categoryEntity.getCoverImage();
-        try {
-            Path path = Paths.get(fullPath);
-            Files.delete(path);
-        } catch (NoSuchFileException ex) {
-            logger.info("Cover image not found in folder", ex);
-            ex.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         categoryEntity.setTitle(categoryDto.getTitle());
         categoryEntity.setDescription(categoryDto.getDescription());
@@ -81,6 +71,16 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(String categoryId) {
 
         CategoryEntity categoryEntity = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundExceptions("Category id not found!!"));
+        String fullPath = imagespath + categoryEntity.getCoverImage();
+        try {
+            Path path = Paths.get(fullPath);
+            Files.delete(path);
+        } catch (NoSuchFileException ex) {
+            logger.info("Cover image not found in folder", ex);
+            ex.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         categoryRepository.delete(categoryEntity);
 
 

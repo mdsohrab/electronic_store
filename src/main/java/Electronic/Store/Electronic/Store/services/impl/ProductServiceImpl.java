@@ -2,8 +2,10 @@ package Electronic.Store.Electronic.Store.services.impl;
 
 import Electronic.Store.Electronic.Store.Dtos.PageableResponse;
 import Electronic.Store.Electronic.Store.Dtos.ProductDto;
+import Electronic.Store.Electronic.Store.Entities.CategoryEntity;
 import Electronic.Store.Electronic.Store.Entities.ProductEntity;
 import Electronic.Store.Electronic.Store.Exceptions.ResourceNotFoundExceptions;
+import Electronic.Store.Electronic.Store.Repositories.CategoryRepository;
 import Electronic.Store.Electronic.Store.Repositories.ProductRepository;
 import Electronic.Store.Electronic.Store.helper.Helper;
 import Electronic.Store.Electronic.Store.services.ProductService;
@@ -15,7 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -27,12 +29,16 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
     @Override
     public ProductDto createProduct(ProductDto productDto) {
 
         String productId = UUID.randomUUID().toString();
         productDto.setProductId(productId);
         ProductEntity productEntity = modelMapper.map(productDto, ProductEntity.class);
+        productDto.setAddedDate(new Date());
         ProductEntity savedProduct = productRepository.save(productEntity);
         return modelMapper.map(savedProduct, ProductDto.class);
     }
@@ -50,6 +56,7 @@ public class ProductServiceImpl implements ProductService {
         productEntity.setPrice(productDto.getPrice());
         productEntity.setQuantity(productDto.getQuantity());
         productEntity.setDiscountedPrice(productDto.getDiscountedPrice());
+        productEntity.setProductImageName(productDto.getProductImageName());
 
         ProductEntity products = productRepository.save(productEntity);
         ProductDto productDtos = modelMapper.map(products, ProductDto.class);
@@ -114,4 +121,46 @@ public class ProductServiceImpl implements ProductService {
 
         return Helper.getPageableResponse(productEntities, ProductDto.class);
     }
+
+    //create product with category
+    @Override
+    public ProductDto createWithCategory(ProductDto productDto, String categoryId) {
+
+        CategoryEntity categoryEntity = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundExceptions("Category id not found !!"));
+
+        String productId = UUID.randomUUID().toString();
+        productDto.setProductId(productId);
+        ProductEntity productEntity = modelMapper.map(productDto, ProductEntity.class);
+        productEntity.setCategory(categoryEntity);
+        productDto.setAddedDate(new Date());
+        ProductEntity savedProduct = productRepository.save(productEntity);
+        return modelMapper.map(savedProduct, ProductDto.class);
+    }
+
+    //update category of product
+    @Override
+    public ProductDto updatedCategory(String productId, String categoryId) {
+
+        ProductEntity product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundExceptions("Product Id not found"));
+
+        CategoryEntity category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundExceptions("Category id not found"));
+
+        product.setCategory(category);
+
+        ProductEntity savedProducts = productRepository.save(product);
+
+        return modelMapper.map(savedProducts, ProductDto.class);
+    }
+
+    @Override
+    public PageableResponse<ProductDto> getAllCategory(String categoryId, int pageNumber, int pageSize, String sortBy, String sortDir) {
+
+        CategoryEntity category = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundExceptions("Category id not found !!"));
+        Sort sort = (sortDir.equalsIgnoreCase("desc")) ? (Sort.by(sortBy).descending()) : (Sort.by(sortBy).ascending());
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+        Page<ProductEntity> page = productRepository.findByCategory(category, pageable);
+
+        return Helper.getPageableResponse(page, ProductDto.class);
+    }
+
 }

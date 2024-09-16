@@ -23,4 +23,6 @@ public class CategoryDto {
 
     @ImageNameValid
     private String coverImage;
+
+
 }
