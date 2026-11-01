@@ -1,0 +1,25 @@
+# Build output
+target/
+out/
+bin/
+*.class
+*.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Logs & env
+*.log
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploaded images
+images/
